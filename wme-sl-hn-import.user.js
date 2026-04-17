@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Quick HN Importer - Slovenia
 // @namespace    https://github.com/zigapovhe/wme-sl-hn-import
-// @version      2.1.1
+// @version      2.1.2
 // @description  Quickly add Slovenian house numbers with clickable overlays
 // @author       ThatByte
 // @downloadURL  https://raw.githubusercontent.com/zigapovhe/wme-sl-hn-import/main/wme-sl-hn-import.user.js
@@ -835,8 +835,8 @@
         <div id="qhnsl-pane" style="padding:10px;">
           <h2 style="margin-top:0;">Quick HN Importer 🇸🇮</h2>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;">
-            <button id="hn-load" class="wz-button">Load selected street</button>
-            <button id="hn-clear" class="wz-button wz-button--secondary">Clear</button>
+            <button id="hn-load" class="wz-button">Load selected street <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+L</kbd></button>
+            <button id="hn-clear" class="wz-button wz-button--secondary">Clear <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+C</kbd></button>
           </div>
           <div id="hn-current-street" style="margin:8px 0;padding:8px;background:#f0f0f0;border-radius:4px;font-size:13px;display:none;">
             <b>WME selected street:</b> <span id="hn-street-name" style="color:#2a7;font-weight:bold;">—</span>
@@ -910,11 +910,11 @@
         applyFeatureFilter();
       });
 
-      btnLoad.addEventListener('click', async () => {
+      async function loadSelectedStreet() {
         if (isLoading) return;
         isLoading = true;
         btnLoad.disabled = true;
-        btnLoad.textContent = 'Loading…';
+        btnLoad.firstChild.textContent = 'Loading… ';
 
         layer.removeAllFeatures();
         streets = {};
@@ -930,11 +930,13 @@
         updateLayerVisibility();
 
         btnLoad.disabled = false;
-        btnLoad.textContent = 'Load selected street';
+        btnLoad.firstChild.textContent = 'Load selected street ';
         isLoading = false;
-      });
+      }
 
-      btnClear.addEventListener('click', () => {
+      btnLoad.addEventListener('click', loadSelectedStreet);
+
+      function clearLayer() {
         layer.removeAllFeatures();
         userWantsLayerVisible = false;
         layer.setVisibility(false);
@@ -949,7 +951,9 @@
         statusDiv.innerHTML = `<b>Instructions</b><br/>
           1) Select a segment • 2) Click "Load selected street" • 3) <b>Click house numbers on map to add them</b><br/>
           Green = selected street • Orange = other streets • Red = possible wrong HN • Faded = already in WME`;
-      });
+      }
+
+      btnClear.addEventListener('click', clearLayer);
 
       applyFeatureFilter = function () {
         const onlyMissing = chkMissing?.hasAttribute('checked');
@@ -1051,6 +1055,22 @@
       }
 
       setupHouseNumberEventListeners();
+
+      ['qhnsl-load', 'qhnsl-clear'].forEach(id => {
+        try { wmeSDK.Shortcuts.deleteShortcut(id); } catch (_) {}
+      });
+      wmeSDK.Shortcuts.createShortcut({
+        shortcutId: 'qhnsl-load',
+        shortcutKeys: 'AS+l',
+        description: 'SL-HN: Load selected street',
+        callback: loadSelectedStreet
+      });
+      wmeSDK.Shortcuts.createShortcut({
+        shortcutId: 'qhnsl-clear',
+        shortcutKeys: 'AS+k',
+        description: 'SL-HN: Clear',
+        callback: clearLayer
+      });
 
       function updateLayer(statusDiv) {
         return new Promise((resolve) => {
