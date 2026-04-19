@@ -835,7 +835,7 @@
         <div id="qhnsl-pane" style="padding:10px;">
           <h2 style="margin-top:0;">Quick HN Importer 🇸🇮</h2>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;">
-            <button id="hn-load" class="wz-button">Load selected street <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+L</kbd></button>
+            <button id="hn-load" class="wz-button"><span id="hn-load-label">Load selected street</span> <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+L</kbd></button>
             <button id="hn-clear" class="wz-button wz-button--secondary">Clear <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+K</kbd></button>
           </div>
           <div id="hn-current-street" style="margin:8px 0;padding:8px;background:#f0f0f0;border-radius:4px;font-size:13px;display:none;">
@@ -856,8 +856,9 @@
         </div>
       `;
 
-      const btnLoad    = tabPane.querySelector('#hn-load');
-      const btnClear   = tabPane.querySelector('#hn-clear');
+      const btnLoad      = tabPane.querySelector('#hn-load');
+      const btnLoadLabel = tabPane.querySelector('#hn-load-label');
+      const btnClear     = tabPane.querySelector('#hn-clear');
       const chkVis = tabPane.querySelector('#hn-toggle');
       chkMissing = tabPane.querySelector('#qhnsl-missing');
       chkSelectedOnly = tabPane.querySelector('#qhnsl-selected-only');
@@ -914,7 +915,7 @@
         if (isLoading) return;
         isLoading = true;
         btnLoad.disabled = true;
-        btnLoad.firstChild.textContent = 'Loading… ';
+        btnLoadLabel.textContent = 'Loading…';
 
         layer.removeAllFeatures();
         streets = {};
@@ -930,7 +931,7 @@
         updateLayerVisibility();
 
         btnLoad.disabled = false;
-        btnLoad.firstChild.textContent = 'Load selected street ';
+        btnLoadLabel.textContent = 'Load selected street';
         isLoading = false;
       }
 
