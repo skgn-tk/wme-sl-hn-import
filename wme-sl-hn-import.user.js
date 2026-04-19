@@ -836,7 +836,7 @@
           <h2 style="margin-top:0;">Quick HN Importer 🇸🇮</h2>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;">
             <button id="hn-load" class="wz-button">Load selected street <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+L</kbd></button>
-            <button id="hn-clear" class="wz-button wz-button--secondary">Clear <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+C</kbd></button>
+            <button id="hn-clear" class="wz-button wz-button--secondary">Clear <kbd style="font-size:10px;background:#e0e0e0;border:1px solid #aaa;border-radius:3px;padding:1px 4px;">Alt+Shift+K</kbd></button>
           </div>
           <div id="hn-current-street" style="margin:8px 0;padding:8px;background:#f0f0f0;border-radius:4px;font-size:13px;display:none;">
             <b>WME selected street:</b> <span id="hn-street-name" style="color:#2a7;font-weight:bold;">—</span>
@@ -1057,19 +1057,14 @@
       setupHouseNumberEventListeners();
 
       ['qhnsl-load', 'qhnsl-clear'].forEach(id => {
-        try { wmeSDK.Shortcuts.deleteShortcut(id); } catch (_) {}
+        try { wmeSDK.Shortcuts.deleteShortcut({ shortcutId: id }); } catch (_) {}
       });
-      wmeSDK.Shortcuts.createShortcut({
-        shortcutId: 'qhnsl-load',
-        shortcutKeys: 'AS+l',
-        description: 'SL-HN: Load selected street',
-        callback: loadSelectedStreet
-      });
-      wmeSDK.Shortcuts.createShortcut({
-        shortcutId: 'qhnsl-clear',
-        shortcutKeys: 'AS+k',
-        description: 'SL-HN: Clear',
-        callback: clearLayer
+      [
+        { shortcutId: 'qhnsl-load',  shortcutKeys: 'AS+l', description: 'SL-HN: Load selected street', callback: loadSelectedStreet },
+        { shortcutId: 'qhnsl-clear', shortcutKeys: 'AS+k', description: 'SL-HN: Clear',                callback: clearLayer }
+      ].forEach(spec => {
+        try { wmeSDK.Shortcuts.createShortcut(spec); }
+        catch (e) { console.warn('SL-HN: failed to register shortcut', spec.shortcutId, e); }
       });
 
       function updateLayer(statusDiv) {
